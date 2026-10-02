@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build --outDir dist --emptyOutDir",
+    "build:file": "node scripts/build-file.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run test && npm run build && npm run test:e2e"
+    "check": "npm run test && npm run build && npm run build:file && npm run test:e2e"
   },
   "dependencies": {
     "three": "^0.180.0"
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@playwright/test": "^1.55.1",
     "@types/three": "^0.186.0",
+    "esbuild": "^0.28.2",
     "typescript": "^5.9.2",
     "vite": "^7.1.7",
     "vitest": "^3.2.4"

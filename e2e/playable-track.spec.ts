@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 test("plays a deterministic mouse-saber slice through hit, miss, and end summary", async ({ page }) => {
-  await page.goto("/?testMode=1");
+  await page.goto("/dev.html?testMode=1");
   await page.getByTestId("mute-toggle").check();
   await page.getByTestId("reduced-motion-toggle").check();
   await page.getByTestId("start-button").click();
