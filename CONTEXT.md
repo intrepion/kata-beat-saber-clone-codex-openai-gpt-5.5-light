@@ -60,6 +60,14 @@ _Avoid_: Standard strictness, dynamic forgiveness, perfect-only scoring
 A subtle camera or lighting response to the rhythm that adds energy without changing the player's required mouse precision.
 _Avoid_: Camera shake, tunnel lurch, dramatic sway
 
+**Count-In**:
+A short pre-track rhythm lead-in after the start click that lets the player place the saber before beat blocks arrive.
+_Avoid_: Countdown, loading delay, pre-roll
+
+**Cut Burst**:
+The immediate visual feedback emitted when a beat block is cut successfully.
+_Avoid_: Explosion, particle reward, hit effect
+
 **Slice Follow-Through**:
 The continuation of the saber's movement through a beat block after initial contact, used as part of score quality.
 _Avoid_: Drag length, swing tail, after-swipe
@@ -71,6 +79,10 @@ _Avoid_: Fail, mistake, dropped note
 **Flow**:
 The felt state of reading, moving, and cutting beat blocks cleanly enough that the player experiences continuous rhythm rather than isolated clicks.
 _Avoid_: Streak, vibe, momentum
+
+**Best Score**:
+The player's locally saved highest result for the complete track, used to make replay meaningful without requiring accounts or online services.
+_Avoid_: Leaderboard, profile, stats history
 
 **Browser Proof**:
 Evidence from the running browser that the player can start a track, cut sample beat blocks, change score and combo state, register misses, reach the end state, and produce a visual screenshot.
