@@ -1,13 +1,13 @@
 import { expect, test, type Page } from "@playwright/test";
 
-test("plays a deterministic mouse-saber slice through hit, miss, and end summary", async ({ page }) => {
+test("plays a deterministic cursor-touch route through hit, miss, and end summary", async ({ page }) => {
   await page.goto("/dev.html?testMode=1");
   await page.getByTestId("mute-toggle").check();
   await page.getByTestId("reduced-motion-toggle").check();
   await page.getByTestId("start-button").click();
 
   await setElapsed(page, 2.1);
-  await slash(page, { from: { x: 640, y: 250 }, to: { x: 640, y: 360 } });
+  await touch(page, { x: 640, y: 360 });
 
   await expect(page.getByTestId("score")).not.toHaveText("0");
   await expect(page.getByTestId("combo")).toHaveText("1");
@@ -38,14 +38,7 @@ async function setElapsed(page: Page, seconds: number) {
   await page.waitForTimeout(60);
 }
 
-async function slash(
-  page: Page,
-  points: {
-    from: { x: number; y: number };
-    to: { x: number; y: number };
-  }
-) {
-  await page.mouse.move(points.from.x, points.from.y);
+async function touch(page: Page, point: { x: number; y: number }) {
+  await page.mouse.move(point.x, point.y);
   await page.waitForTimeout(40);
-  await page.mouse.move(points.to.x, points.to.y, { steps: 8 });
 }

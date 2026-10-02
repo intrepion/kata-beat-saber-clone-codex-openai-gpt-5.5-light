@@ -1,35 +1,35 @@
 # Beat Saber Clone Context
 
-This context defines the shared language for a mouse-first, single-saber rhythm game inspired by Beat Saber. The project prioritizes recognizable slicing, timing, and flow while adapting the core loop to ordinary browser pointer input.
+This context defines the shared language for a mouse-first rhythm game inspired by Beat Saber. The project prioritizes recognizable beat timing, block approach, and flow while adapting the core loop to ordinary browser pointer input.
 
 ## Language
 
-**One-Saber Rhythm Game**:
-A rhythm-action game where every playable beat is cut with one blade controlled by the mouse.
-_Avoid_: Two-saber mode, VR mode, dual-wield mode
+**Cursor Rhythm Game**:
+A rhythm-action game where every playable beat is touched with the mouse cursor as beat blocks reach the strike plane.
+_Avoid_: Saber simulator, two-saber mode, VR mode
 
-**Saber**:
-The player's single cutting blade, represented by a visible trail that follows recent mouse movement through the strike space.
-_Avoid_: Sword, cursor, pointer
+**Beat Cursor**:
+The player's mouse-controlled touch point in the strike plane.
+_Avoid_: Saber, sword, blade
 
 **Strike Plane**:
-The screen-facing play space where the mouse-controlled saber can intersect incoming beat blocks.
+The screen-facing play space where the beat cursor can touch incoming beat blocks.
 _Avoid_: Cursor layer, hit area, mouse plane
 
 **Beat Block**:
-An incoming target that reaches the strike plane on a beat and asks the player to cut in a specific direction.
+An incoming target that reaches the strike plane on a beat and asks the player to touch it with the beat cursor.
 _Avoid_: Note, cube, target
 
 **Block Grid**:
 The 3x3 set of readable strike-plane positions where beat blocks can arrive during the first playable track.
 _Avoid_: Lanes, columns, target matrix
 
-**Cut Direction**:
-The intended slash vector shown on a beat block and judged against the saber's recent movement.
-_Avoid_: Arrow, gesture, swipe
+**Touch Window**:
+The forgiving timing interval around a beat block's arrival when cursor contact can score.
+_Avoid_: Cut direction, gesture window, swipe timing
 
 **Chart**:
-The authored sequence of beat blocks, timings, cut directions, and difficulty pacing for a track.
+The authored sequence of beat blocks, timings, grid positions, and difficulty pacing for a track.
 _Avoid_: Map, level script, song data
 
 **Generated Track**:
@@ -41,7 +41,7 @@ The first generated track's musical personality: steady electronic beat, clean s
 _Avoid_: Industrial arena, minimal trainer, generic music
 
 **Neon Duotone**:
-The game's original visual identity: cyan saber, magenta beat blocks, and a dark tunnel used for high-contrast readability.
+The game's original visual identity: cyan beat cursor, magenta beat blocks, and a dark tunnel used for high-contrast readability.
 _Avoid_: Rainbow arcade, monochrome trainer, generic neon
 
 **Complete Track**:
@@ -52,9 +52,9 @@ _Avoid_: Endless mode, demo loop, feel prototype
 The first chart's difficulty shape, starting with single cardinal cuts before introducing diagonals and cross-grid movement.
 _Avoid_: Immediate arcade, adaptive difficulty, hard mode
 
-**Light Smoothing**:
-The saber motion feel where pointer input remains close and trustworthy while retaining enough trail history for cut direction and follow-through judgment.
-_Avoid_: Heavy inertia, raw cursor, lag
+**Direct Cursor Control**:
+The control feel where the beat cursor follows mouse position without simulated blade inertia.
+_Avoid_: Light smoothing, heavy inertia, lag
 
 **Generous Timing**:
 The first playable track's forgiving cut window, used to reveal whether mouse misses feel fair before strict rhythm scoring is tuned.
@@ -65,19 +65,15 @@ A subtle camera or lighting response to the rhythm that adds energy without chan
 _Avoid_: Camera shake, tunnel lurch, dramatic sway
 
 **Count-In**:
-A short pre-track rhythm lead-in after the start click that lets the player place the saber before beat blocks arrive.
+A short pre-track rhythm lead-in after the start click that lets the player place the beat cursor before beat blocks arrive.
 _Avoid_: Countdown, loading delay, pre-roll
 
-**Cut Burst**:
-The immediate visual feedback emitted when a beat block is cut successfully.
-_Avoid_: Explosion, particle reward, hit effect
-
-**Slice Follow-Through**:
-The continuation of the saber's movement through a beat block after initial contact, used as part of score quality.
-_Avoid_: Drag length, swing tail, after-swipe
+**Touch Burst**:
+The immediate visual feedback emitted when a beat block is touched successfully.
+_Avoid_: Explosion, particle reward, cut burst
 
 **Miss**:
-A beat block that reaches the end of its timing window without a valid position-and-direction cut.
+A beat block that reaches the end of its touch window without cursor contact.
 _Avoid_: Fail, mistake, dropped note
 
 **Flow**:
@@ -101,5 +97,5 @@ The player option that limits camera and beat-pulse motion while preserving play
 _Avoid_: Low graphics mode, accessibility mode, no effects
 
 **Browser Proof**:
-Evidence from the running browser that the player can start a track, cut sample beat blocks, change score and combo state, register misses, reach the end state, and produce a visual screenshot.
+Evidence from the running browser that the player can start a track, touch sample beat blocks, change score and combo state, register misses, reach the end state, and produce a visual screenshot.
 _Avoid_: Build proof, syntax proof, assumed playability

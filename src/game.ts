@@ -7,20 +7,13 @@ import {
   scheduleChart,
   type ScheduledBeatBlock
 } from "./chart";
-import { DIRECTION_VECTORS, type CutDirection } from "./directions";
-import { applyCutResult, getRank, INITIAL_SCORE_STATE, judgeCut, type ScoreState } from "./scoring";
+import { applyCutResult, getRank, INITIAL_SCORE_STATE, type CutResult, type ScoreState } from "./scoring";
 import { readBestScore, saveBestScore } from "./storage";
 
 type ActiveBlock = {
   block: ScheduledBeatBlock;
   mesh: THREE.Mesh;
   judged: boolean;
-};
-
-type SaberSample = {
-  x: number;
-  y: number;
-  time: number;
 };
 
 type GameOptions = {
@@ -50,15 +43,11 @@ export class NeonSaberGame {
   private readonly clock = new THREE.Clock();
   private readonly scheduled = scheduleChart(FIRST_TRACK_CHART);
   private readonly trackDuration = getTrackDurationSeconds(FIRST_TRACK_CHART);
-  private readonly saber = new THREE.Group();
-  private readonly trailPositions = new Float32Array(18);
-  private readonly trailGeometry = new THREE.BufferGeometry();
-  private readonly trailLine = new THREE.Line(
-    this.trailGeometry,
-    new THREE.LineBasicMaterial({ color: 0x46f7ff, transparent: true, opacity: 0.72 })
+  private readonly cursor = new THREE.Mesh(
+    new THREE.RingGeometry(0.17, 0.24, 32),
+    new THREE.MeshBasicMaterial({ color: 0x46f7ff, transparent: true, opacity: 0.95 })
   );
-  private readonly saberTip = new THREE.Vector2(0, 0);
-  private readonly samples: SaberSample[] = [];
+  private readonly cursorPosition = new THREE.Vector2(0, 0);
   private readonly activeBlocks: ActiveBlock[] = [];
   private readonly bursts: THREE.Mesh[] = [];
   private scoreState: ScoreState = { ...INITIAL_SCORE_STATE };
@@ -76,7 +65,6 @@ export class NeonSaberGame {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.options.arena.appendChild(this.renderer.domElement);
     this.buildScene();
-    this.scene.add(this.trailLine);
     this.resize();
     this.updateBestScore();
 
@@ -156,7 +144,6 @@ export class NeonSaberGame {
     this.options.shell.classList.remove("miss-flash");
     this.audio?.stop();
     this.audio = null;
-    this.samples.length = 0;
 
     for (const active of this.activeBlocks) {
       this.scene.remove(active.mesh);
@@ -189,28 +176,15 @@ export class NeonSaberGame {
     strikePlane.rotation.z = Math.PI / 4;
     this.scene.add(strikePlane);
 
-    const blade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.04, 0.018, 1.7, 16),
-      new THREE.MeshBasicMaterial({ color: 0x46f7ff })
-    );
-    blade.position.y = -0.62;
-    this.saber.add(blade);
-
-    const glow = new THREE.Mesh(
-      new THREE.SphereGeometry(0.11, 18, 18),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
-    glow.position.y = 0.24;
-    this.saber.add(glow);
-    this.scene.add(this.saber);
-    this.trailGeometry.setAttribute("position", new THREE.BufferAttribute(this.trailPositions, 3));
+    this.cursor.position.z = 0.24;
+    this.scene.add(this.cursor);
   }
 
   private tick = () => {
     const elapsed = this.getElapsedSeconds();
     this.spawnDueBlocks(elapsed);
     this.updateBlocks(elapsed);
-    this.updateSaber();
+    this.updateCursor();
 
     if (!this.options.reducedMotionInput.checked) {
       this.camera.position.z = 6 + Math.sin(elapsed * Math.PI * 2) * 0.025;
@@ -226,7 +200,7 @@ export class NeonSaberGame {
   };
 
   private renderIdle = () => {
-    this.updateSaber();
+    this.updateCursor();
     this.renderer.render(this.scene, this.camera);
     this.animationId = requestAnimationFrame(this.renderIdle);
   };
@@ -285,22 +259,18 @@ export class NeonSaberGame {
       roughness: 0.35
     });
     const mesh = new THREE.Mesh(geometry, material);
-    const arrow = this.createDirectionArrow(block.direction);
-    arrow.position.z = 0.17;
-    mesh.add(arrow);
     mesh.position.set(GRID_X[block.cell.column], GRID_Y[block.cell.row], -12);
     mesh.userData.blockId = block.id;
     this.scene.add(mesh);
     return mesh;
   }
 
-  private tryCut() {
+  private tryTouch() {
     if (!this.started || this.ended) {
       return;
     }
 
     const elapsed = this.getElapsedSeconds();
-    const movement = this.getRecentMovement();
 
     for (const active of this.activeBlocks) {
       if (active.judged) {
@@ -311,19 +281,14 @@ export class NeonSaberGame {
         GRID_X[active.block.cell.column],
         GRID_Y[active.block.cell.row]
       );
-      const distance = target.distanceTo(this.saberTip);
+      const distance = target.distanceTo(this.cursorPosition);
       const offset = elapsed - active.block.hitTimeSeconds;
 
       if (distance > STRIKE_DISTANCE || Math.abs(offset) > MISS_WINDOW_SECONDS) {
         continue;
       }
 
-      const result = judgeCut({
-        expectedDirection: active.block.direction,
-        movement,
-        timeOffsetSeconds: offset,
-        followThrough: Math.min(1, Math.hypot(movement.x, movement.y) * 1.8)
-      });
+      const result = judgeTouch(offset, distance);
 
       if (result.hit) {
         this.scoreState = applyCutResult(this.scoreState, result);
@@ -333,7 +298,7 @@ export class NeonSaberGame {
         this.addCutBurst(target.x, target.y);
         this.feedback(result.timing === "clean" ? "Clean cut" : result.timing);
       } else {
-        this.feedback(result.directionMatched ? "Timing miss" : "Wrong direction");
+        this.feedback("Timing miss");
       }
 
       return;
@@ -350,21 +315,6 @@ export class NeonSaberGame {
     this.updateHud();
     this.feedback("Miss");
     this.flashMiss();
-  }
-
-  private createDirectionArrow(direction: CutDirection) {
-    const shape = new THREE.Shape();
-    shape.moveTo(0, 0.28);
-    shape.lineTo(-0.2, -0.18);
-    shape.lineTo(0, -0.08);
-    shape.lineTo(0.2, -0.18);
-    shape.lineTo(0, 0.28);
-    const geometry = new THREE.ShapeGeometry(shape);
-    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const arrow = new THREE.Mesh(geometry, material);
-    const vector = DIRECTION_VECTORS[direction];
-    arrow.rotation.z = Math.atan2(vector.y, vector.x) - Math.PI / 2;
-    return arrow;
   }
 
   private addCutBurst(x: number, y: number) {
@@ -400,40 +350,9 @@ export class NeonSaberGame {
     this.updateBestScore();
   }
 
-  private updateSaber() {
-    this.saber.position.set(this.saberTip.x, this.saberTip.y - 0.12, 0.2);
-    const movement = this.getRecentMovement();
-    this.saber.rotation.z = -Math.atan2(movement.x, movement.y);
-    this.updateTrail();
-  }
-
-  private updateTrail() {
-    const recentSamples = this.samples.slice(-6);
-    const samples = recentSamples.length > 0 ? recentSamples : [{ x: this.saberTip.x, y: this.saberTip.y }];
-
-    for (let index = 0; index < 6; index += 1) {
-      const sample = samples[Math.max(0, samples.length - 1 - index)] ?? samples[0];
-      const offset = index * 3;
-      this.trailPositions[offset] = sample.x;
-      this.trailPositions[offset + 1] = sample.y - 0.12;
-      this.trailPositions[offset + 2] = 0.18 - index * 0.015;
-    }
-
-    this.trailGeometry.attributes.position.needsUpdate = true;
-  }
-
-  private getRecentMovement() {
-    const latest = this.samples.at(-1);
-    const previous = [...this.samples].reverse().find((sample) => latest && latest.time - sample.time > 35);
-
-    if (!latest || !previous) {
-      return { x: 0, y: -1 };
-    }
-
-    return {
-      x: latest.x - previous.x,
-      y: latest.y - previous.y
-    };
+  private updateCursor() {
+    this.cursor.position.set(this.cursorPosition.x, this.cursorPosition.y, 0.24);
+    this.cursor.rotation.z += 0.025;
   }
 
   private getElapsedSeconds() {
@@ -473,18 +392,13 @@ export class NeonSaberGame {
     const normalizedY = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
     const targetX = normalizedX * 2.15;
     const targetY = normalizedY * 1.45;
-    this.saberTip.set(targetX, targetY);
-    this.samples.push({ x: this.saberTip.x, y: this.saberTip.y, time: performance.now() });
+    this.cursorPosition.set(targetX, targetY);
 
-    while (this.samples.length > 12) {
-      this.samples.shift();
-    }
-
-    this.tryCut();
+    this.tryTouch();
   };
 
   private handlePointerLeave = () => {
-    this.samples.length = 0;
+    this.cursorPosition.set(0, 0);
   };
 
   private handleKeyDown = (event: KeyboardEvent) => {
@@ -499,6 +413,30 @@ export class NeonSaberGame {
     this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
+  };
+}
+
+function judgeTouch(timeOffsetSeconds: number, distance: number): CutResult {
+  const absOffset = Math.abs(timeOffsetSeconds);
+  const hit = absOffset <= MISS_WINDOW_SECONDS && distance <= STRIKE_DISTANCE;
+
+  if (!hit) {
+    return {
+      hit: false,
+      points: 0,
+      timing: absOffset > MISS_WINDOW_SECONDS ? (timeOffsetSeconds < 0 ? "early" : "late") : "miss",
+      directionMatched: true
+    };
+  }
+
+  const timingPoints = Math.max(0, 80 - Math.round(absOffset * 170));
+  const proximityPoints = Math.max(0, Math.round((1 - distance / STRIKE_DISTANCE) * 30));
+
+  return {
+    hit: true,
+    points: timingPoints + proximityPoints,
+    timing: absOffset <= 0.09 ? "clean" : timeOffsetSeconds < 0 ? "early" : "late",
+    directionMatched: true
   };
 }
 

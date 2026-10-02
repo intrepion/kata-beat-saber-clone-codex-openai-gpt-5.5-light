@@ -17,7 +17,7 @@ test("boots from a direct file URL without Vite module CORS failures", async ({ 
 
   await page.goto(pathToFileURL(resolve("index.html")).href);
 
-  await expect(page.getByRole("heading", { name: "Neon Saber" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Neon Cursor" })).toBeVisible();
   await expect(page.locator("canvas")).toBeVisible();
   await expect(page.getByTestId("start-button")).toBeVisible();
   expect(consoleErrors.join("\n")).not.toContain("/src/main.ts");
