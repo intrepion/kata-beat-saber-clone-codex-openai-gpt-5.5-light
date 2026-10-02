@@ -1,0 +1,3 @@
+# Build With Audio-Clock Slices and Deterministic Proof
+
+The game will be implemented in thin vertical slices: scaffold the app, then prove saber input, chart timing, scoring, visuals/audio, and browser proof in sequence. The first chart will be a typed in-code chart, play timing will use the audio clock after start, unit tests will cover chart scheduling, cut direction matching, scoring, and best score persistence, and Playwright will use a deterministic test mode with known chart timings and synthetic mouse movement. Direct `file://` launch is out of MVP scope so the first build can focus on rhythm feel and reliable browser evidence instead of packaging complexity.
