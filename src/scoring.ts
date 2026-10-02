@@ -25,6 +25,8 @@ export type ScoreState = {
   attempts: number;
 };
 
+export type Rank = "S" | "A" | "B" | "C" | "D";
+
 export const INITIAL_SCORE_STATE: ScoreState = {
   score: 0,
   combo: 0,
@@ -83,7 +85,7 @@ export function applyCutResult(state: ScoreState, result: CutResult): ScoreState
   };
 }
 
-export function getRank(state: ScoreState): "S" | "A" | "B" | "C" | "D" {
+export function getRank(state: ScoreState): Rank {
   if (state.attempts === 0) {
     return "D";
   }

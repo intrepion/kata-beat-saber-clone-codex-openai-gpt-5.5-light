@@ -35,7 +35,8 @@ app.innerHTML = `
   </main>
 `;
 
-const maybeArena = app.querySelector<HTMLDivElement>("[data-testid='arena']");
+const shellEl = app.querySelector<HTMLElement>(".game-shell");
+const arenaEl = app.querySelector<HTMLDivElement>("[data-testid='arena']");
 const startButton = app.querySelector<HTMLButtonElement>("[data-testid='start-button']");
 const scoreEl = app.querySelector<HTMLElement>("[data-testid='score']");
 const comboEl = app.querySelector<HTMLElement>("[data-testid='combo']");
@@ -48,7 +49,8 @@ const muteInput = app.querySelector<HTMLInputElement>("[data-testid='mute-toggle
 const testMode = new URLSearchParams(window.location.search).has("testMode");
 
 if (
-  !maybeArena ||
+  !arenaEl ||
+  !shellEl ||
   !startButton ||
   !scoreEl ||
   !comboEl ||
@@ -63,7 +65,8 @@ if (
 }
 
 const game = new NeonSaberGame({
-  arena: maybeArena,
+  arena: arenaEl,
+  shell: shellEl,
   scoreEl,
   comboEl,
   missesEl,

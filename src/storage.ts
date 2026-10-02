@@ -1,6 +1,8 @@
+import type { Rank } from "./scoring";
+
 export type BestScore = {
   score: number;
-  rank: string;
+  rank: Rank;
 };
 
 const BEST_SCORE_KEY = "neon-saber-best-score";
@@ -17,7 +19,7 @@ export function readBestScore(storage: ScoreStorage): BestScore | null {
   try {
     const parsed = JSON.parse(rawValue) as BestScore;
 
-    if (typeof parsed.score !== "number" || typeof parsed.rank !== "string") {
+    if (typeof parsed.score !== "number" || !isRank(parsed.rank)) {
       return null;
     }
 
@@ -25,6 +27,10 @@ export function readBestScore(storage: ScoreStorage): BestScore | null {
   } catch {
     return null;
   }
+}
+
+function isRank(value: unknown): value is Rank {
+  return value === "S" || value === "A" || value === "B" || value === "C" || value === "D";
 }
 
 export function saveBestScore(

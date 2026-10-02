@@ -34,7 +34,8 @@ describe("chart scheduling", () => {
 
   it("defines a complete first track instead of an endless stream", () => {
     expect(FIRST_TRACK_CHART.length).toBeGreaterThanOrEqual(20);
-    expect(getTrackDurationSeconds(FIRST_TRACK_CHART)).toBeGreaterThan(20);
+    expect(getTrackDurationSeconds(FIRST_TRACK_CHART)).toBeGreaterThanOrEqual(60);
+    expect(getTrackDurationSeconds(FIRST_TRACK_CHART)).toBeLessThanOrEqual(90);
   });
 });
 

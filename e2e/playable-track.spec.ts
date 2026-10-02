@@ -25,6 +25,12 @@ test("plays a deterministic mouse-saber slice through hit, miss, and end summary
   await expect(page.getByRole("heading", { name: /Rank/ })).toBeVisible();
   await expect(page.getByTestId("restart-button")).toBeVisible();
   await page.screenshot({ path: "test-results/neon-saber-mvp.png", fullPage: true });
+
+  await page.getByTestId("restart-button").click();
+  await expect(page.getByRole("heading", { name: /Rank/ })).toBeHidden();
+  await expect(page.getByTestId("score")).toHaveText("0");
+  await expect(page.getByTestId("combo")).toHaveText("0");
+  await expect(page.getByTestId("misses")).toHaveText("0");
 });
 
 async function setElapsed(page: Page, seconds: number) {
