@@ -23,3 +23,17 @@ test("boots from a direct file URL without Vite module CORS failures", async ({ 
   expect(consoleErrors.join("\n")).not.toContain("/src/main.ts");
   expect(failedRequests.join("\n")).not.toContain("/src/main.ts");
 });
+
+test("starts real-time block spawning from direct file launch", async ({ page }) => {
+  await page.goto(`${pathToFileURL(resolve("index.html")).href}?debug=1`);
+
+  await page.getByTestId("mute-toggle").check();
+  await page.getByTestId("start-button").click();
+  await page.waitForFunction(() => (window.neonSaberTest?.snapshot().activeBlocks ?? 0) > 0, null, {
+    timeout: 5000
+  });
+
+  const snapshot = await page.evaluate(() => window.neonSaberTest?.snapshot());
+  expect(snapshot?.audioStarted).toBe(true);
+  expect(snapshot?.activeBlocks).toBeGreaterThan(0);
+});

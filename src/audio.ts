@@ -29,6 +29,9 @@ export function startGeneratedTrack(
 
   for (let beat = -4; beat < durationSeconds / secondsPerBeat; beat += 1) {
     const when = startTime + beat * secondsPerBeat;
+    if (when < context.currentTime + 0.01) {
+      continue;
+    }
     const isAccent = beat % 4 === 0;
     scheduleKick(context, master, when, isAccent, oscillators, gains);
     scheduleTone(context, master, when, isAccent ? 110 : 164.81, isAccent ? 0.2 : 0.13, 0.24, "sawtooth", oscillators, gains);

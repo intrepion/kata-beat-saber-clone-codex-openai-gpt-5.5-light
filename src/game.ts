@@ -91,15 +91,20 @@ export class NeonSaberGame {
     this.reset();
     this.started = true;
     this.options.overlayEl.hidden = true;
-    this.audio = startGeneratedTrack(
-      COUNT_IN_SECONDS,
-      this.trackDuration,
-      this.options.muteInput.checked || Boolean(this.options.testMode)
-    );
+    this.fallbackStartMs = performance.now() + COUNT_IN_SECONDS * 1000;
+    try {
+      this.audio = startGeneratedTrack(
+        COUNT_IN_SECONDS,
+        this.trackDuration,
+        this.options.muteInput.checked || Boolean(this.options.testMode)
+      );
+    } catch (error) {
+      console.warn("Generated track unavailable; continuing with visual beat timing.", error);
+      this.audio = null;
+    }
     if (this.options.testMode) {
       this.testElapsedSeconds = -COUNT_IN_SECONDS;
     }
-    this.fallbackStartMs = performance.now() + COUNT_IN_SECONDS * 1000;
     this.clock.start();
     cancelAnimationFrame(this.animationId);
     this.animationId = requestAnimationFrame(this.tick);
@@ -137,6 +142,8 @@ export class NeonSaberGame {
       maxCombo: this.scoreState.maxCombo,
       ended: this.ended,
       audioStarted: Boolean(this.audio),
+      activeBlocks: this.activeBlocks.filter((block) => !block.judged).length,
+      elapsed: this.getElapsedSeconds(),
       trackDuration: this.trackDuration
     };
   }
@@ -432,10 +439,6 @@ export class NeonSaberGame {
   private getElapsedSeconds() {
     if (this.options.testMode) {
       return this.testElapsedSeconds;
-    }
-
-    if (this.audio) {
-      return this.audio.context.currentTime - this.audio.startTime;
     }
 
     return (performance.now() - this.fallbackStartMs) / 1000;
