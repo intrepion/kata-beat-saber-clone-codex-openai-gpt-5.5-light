@@ -45,6 +45,7 @@ const bestEl = app.querySelector<HTMLElement>("[data-testid='best-score']");
 const overlayEl = app.querySelector<HTMLElement>(".center-panel");
 const reducedMotionInput = app.querySelector<HTMLInputElement>("[data-testid='reduced-motion-toggle']");
 const muteInput = app.querySelector<HTMLInputElement>("[data-testid='mute-toggle']");
+const testMode = new URLSearchParams(window.location.search).has("testMode");
 
 if (
   !maybeArena ||
@@ -70,7 +71,15 @@ const game = new NeonSaberGame({
   bestEl,
   overlayEl,
   reducedMotionInput,
-  muteInput
+  muteInput,
+  testMode
 });
 
 startButton.addEventListener("click", game.start);
+
+if (testMode) {
+  window.neonSaberTest = {
+    setElapsed: (seconds: number) => game.setTestElapsed(seconds),
+    snapshot: () => game.getSnapshot()
+  };
+}

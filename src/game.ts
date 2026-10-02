@@ -32,6 +32,7 @@ type GameOptions = {
   overlayEl: HTMLElement;
   reducedMotionInput: HTMLInputElement;
   muteInput: HTMLInputElement;
+  testMode?: boolean;
 };
 
 const COUNT_IN_SECONDS = 2;
@@ -55,6 +56,7 @@ export class NeonSaberGame {
   private scoreState: ScoreState = { ...INITIAL_SCORE_STATE };
   private audio: TrackAudio | null = null;
   private fallbackStartMs = 0;
+  private testElapsedSeconds = 0;
   private animationId = 0;
   private started = false;
   private ended = false;
@@ -83,8 +85,13 @@ export class NeonSaberGame {
     this.audio = startGeneratedTrack(
       COUNT_IN_SECONDS,
       this.trackDuration,
-      this.options.muteInput.checked
+      this.options.muteInput.checked || Boolean(this.options.testMode)
     );
+    if (this.options.testMode) {
+      this.audio?.stop();
+      this.audio = null;
+      this.testElapsedSeconds = -COUNT_IN_SECONDS;
+    }
     this.fallbackStartMs = performance.now() + COUNT_IN_SECONDS * 1000;
     this.clock.start();
     cancelAnimationFrame(this.animationId);
@@ -99,6 +106,31 @@ export class NeonSaberGame {
     this.options.arena.removeEventListener("pointerleave", this.handlePointerLeave);
     window.removeEventListener("keydown", this.handleKeyDown);
     this.renderer.dispose();
+  }
+
+  setTestElapsed(seconds: number) {
+    if (!this.options.testMode) {
+      return;
+    }
+
+    this.testElapsedSeconds = seconds;
+    this.spawnDueBlocks(seconds);
+    this.updateBlocks(seconds);
+    if (!this.ended && seconds > this.trackDuration) {
+      this.endTrack();
+    }
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  getSnapshot() {
+    return {
+      score: this.scoreState.score,
+      combo: this.scoreState.combo,
+      misses: this.scoreState.misses,
+      maxCombo: this.scoreState.maxCombo,
+      ended: this.ended,
+      trackDuration: this.trackDuration
+    };
   }
 
   private reset() {
@@ -354,6 +386,10 @@ export class NeonSaberGame {
   }
 
   private getElapsedSeconds() {
+    if (this.options.testMode) {
+      return this.testElapsedSeconds;
+    }
+
     if (this.audio) {
       return this.audio.context.currentTime - this.audio.startTime;
     }
@@ -409,4 +445,13 @@ export class NeonSaberGame {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
   };
+}
+
+declare global {
+  interface Window {
+    neonSaberTest?: {
+      setElapsed: (seconds: number) => void;
+      snapshot: () => ReturnType<NeonSaberGame["getSnapshot"]>;
+    };
+  }
 }
