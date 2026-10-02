@@ -40,6 +40,10 @@ _Avoid_: Placeholder audio, metronome, soundtrack
 The first generated track's musical personality: steady electronic beat, clean synth bass, and bright lead accents that support readable slicing.
 _Avoid_: Industrial arena, minimal trainer, generic music
 
+**Neon Duotone**:
+The game's original visual identity: cyan saber, magenta beat blocks, and a dark tunnel used for high-contrast readability.
+_Avoid_: Rainbow arcade, monochrome trainer, generic neon
+
 **Complete Track**:
 A finite generated track with a start, pacing curve, ending, score, combo, misses, and restart path.
 _Avoid_: Endless mode, demo loop, feel prototype
@@ -83,6 +87,18 @@ _Avoid_: Streak, vibe, momentum
 **Best Score**:
 The player's locally saved highest result for the complete track, used to make replay meaningful without requiring accounts or online services.
 _Avoid_: Leaderboard, profile, stats history
+
+**Rank**:
+The end-summary grade derived from accuracy, combo, and misses for a completed track.
+_Avoid_: Level, tier, progression
+
+**Visible Timing Feedback**:
+An on-screen indication of whether a cut was early, late, missed, or clean enough to help players improve without relying only on audio.
+_Avoid_: Debug text, hidden timing, score popup
+
+**Reduced Motion**:
+The player option that limits camera and beat-pulse motion while preserving playable timing and scoring.
+_Avoid_: Low graphics mode, accessibility mode, no effects
 
 **Browser Proof**:
 Evidence from the running browser that the player can start a track, cut sample beat blocks, change score and combo state, register misses, reach the end state, and produce a visual screenshot.
