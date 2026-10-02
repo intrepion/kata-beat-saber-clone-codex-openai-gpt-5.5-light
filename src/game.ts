@@ -38,7 +38,7 @@ type GameOptions = {
 };
 
 const COUNT_IN_SECONDS = 2;
-const STRIKE_DISTANCE = 0.62;
+const STRIKE_DISTANCE = 0.82;
 const MISS_WINDOW_SECONDS = 0.34;
 const GRID_X = [-1.45, 0, 1.45] as const;
 const GRID_Y = [-1.05, 0, 1.05] as const;
@@ -97,8 +97,6 @@ export class NeonSaberGame {
       this.options.muteInput.checked || Boolean(this.options.testMode)
     );
     if (this.options.testMode) {
-      this.audio?.stop();
-      this.audio = null;
       this.testElapsedSeconds = -COUNT_IN_SECONDS;
     }
     this.fallbackStartMs = performance.now() + COUNT_IN_SECONDS * 1000;
@@ -138,6 +136,7 @@ export class NeonSaberGame {
       misses: this.scoreState.misses,
       maxCombo: this.scoreState.maxCombo,
       ended: this.ended,
+      audioStarted: Boolean(this.audio),
       trackDuration: this.trackDuration
     };
   }
@@ -184,10 +183,10 @@ export class NeonSaberGame {
     this.scene.add(strikePlane);
 
     const blade = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.035, 0.015, 2.2, 16),
+      new THREE.CylinderGeometry(0.04, 0.018, 1.7, 16),
       new THREE.MeshBasicMaterial({ color: 0x46f7ff })
     );
-    blade.position.y = -0.9;
+    blade.position.y = -0.62;
     this.saber.add(blade);
 
     const glow = new THREE.Mesh(
@@ -395,9 +394,9 @@ export class NeonSaberGame {
   }
 
   private updateSaber() {
-    this.saber.position.set(this.saberTip.x, this.saberTip.y - 0.22, 0.2);
+    this.saber.position.set(this.saberTip.x, this.saberTip.y - 0.12, 0.2);
     const movement = this.getRecentMovement();
-    this.saber.rotation.z = -Math.atan2(movement.x, Math.max(Math.abs(movement.y), 0.2));
+    this.saber.rotation.z = -Math.atan2(movement.x, movement.y);
     this.updateTrail();
   }
 
@@ -409,7 +408,7 @@ export class NeonSaberGame {
       const sample = samples[Math.max(0, samples.length - 1 - index)] ?? samples[0];
       const offset = index * 3;
       this.trailPositions[offset] = sample.x;
-      this.trailPositions[offset + 1] = sample.y - 0.2;
+      this.trailPositions[offset + 1] = sample.y - 0.12;
       this.trailPositions[offset + 2] = 0.18 - index * 0.015;
     }
 
@@ -471,10 +470,10 @@ export class NeonSaberGame {
     const normalizedY = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
     const targetX = normalizedX * 2.15;
     const targetY = normalizedY * 1.45;
-    this.saberTip.lerp(new THREE.Vector2(targetX, targetY), 0.62);
+    this.saberTip.set(targetX, targetY);
     this.samples.push({ x: this.saberTip.x, y: this.saberTip.y, time: performance.now() });
 
-    while (this.samples.length > 8) {
+    while (this.samples.length > 12) {
       this.samples.shift();
     }
 
