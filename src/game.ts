@@ -40,6 +40,10 @@ export class NeonSaberGame {
   private readonly scene = new THREE.Scene();
   private readonly camera = new THREE.PerspectiveCamera(70, 1, 0.1, 100);
   private readonly renderer = new THREE.WebGLRenderer({ antialias: true });
+  private readonly raycaster = new THREE.Raycaster();
+  private readonly pointerNdc = new THREE.Vector2();
+  private readonly strikePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+  private readonly intersection = new THREE.Vector3();
   private readonly clock = new THREE.Clock();
   private readonly scheduled = scheduleChart(FIRST_TRACK_CHART);
   private readonly trackDuration = getTrackDurationSeconds(FIRST_TRACK_CHART);
@@ -132,6 +136,10 @@ export class NeonSaberGame {
       audioStarted: Boolean(this.audio),
       activeBlocks: this.activeBlocks.filter((block) => !block.judged).length,
       elapsed: this.getElapsedSeconds(),
+      cursor: {
+        x: this.cursorPosition.x,
+        y: this.cursorPosition.y
+      },
       trackDuration: this.trackDuration
     };
   }
@@ -388,11 +396,15 @@ export class NeonSaberGame {
 
   private handlePointerMove = (event: PointerEvent) => {
     const rect = this.options.arena.getBoundingClientRect();
-    const normalizedX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    const normalizedY = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
-    const targetX = normalizedX * 2.15;
-    const targetY = normalizedY * 1.45;
-    this.cursorPosition.set(targetX, targetY);
+    this.pointerNdc.set(
+      ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -(((event.clientY - rect.top) / rect.height) * 2 - 1)
+    );
+    this.raycaster.setFromCamera(this.pointerNdc, this.camera);
+
+    if (this.raycaster.ray.intersectPlane(this.strikePlane, this.intersection)) {
+      this.cursorPosition.set(this.intersection.x, this.intersection.y);
+    }
 
     this.tryTouch();
   };

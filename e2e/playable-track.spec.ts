@@ -33,6 +33,16 @@ test("plays a deterministic cursor-touch route through hit, miss, and end summar
   await expect(page.getByTestId("misses")).toHaveText("0");
 });
 
+test("maps the mouse position to the rendered strike plane", async ({ page }) => {
+  await page.goto("/dev.html?testMode=1");
+  await touch(page, { x: 640, y: 360 });
+
+  const cursor = await page.evaluate(() => window.neonSaberTest?.snapshot().cursor);
+
+  expect(cursor?.x).toBeCloseTo(0, 1);
+  expect(cursor?.y).toBeCloseTo(0, 1);
+});
+
 async function setElapsed(page: Page, seconds: number) {
   await page.evaluate((elapsed) => window.neonSaberTest?.setElapsed(elapsed), seconds);
   await page.waitForTimeout(60);
