@@ -1,6 +1,47 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "gameId": "kata-beat-saber-clone-codex-openai-gpt-5.5-light",
   "playUrl": "https://intrepion.github.io/kata-beat-saber-clone-codex-openai-gpt-5.5-light/",
-  "screenshots": []
+  "screenshots": [
+    {
+      "path": "arcade/screenshots/ci-20261102-01.jpg",
+      "sha256": "9dde3da045bc74be44d6e87569686bc7c7d9c4368662594f4e6517172f0aace3",
+      "alt": "Neon Saber gameplay, view 1",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-01.png",
+        "sourceSha256": "d51257d25b69134784e30bf88c7ab24b7329e4873611964dd7fa9de28430f35b",
+        "captureCommit": "64fef811fea1cd5b1157d626e2fe65a72947a760",
+        "workflowRunId": "41397264524",
+        "inputHashes": {
+          "index.html": "1c8d019cab4b9cbe2f1a13cd331e0f3f64fd70a8c0f3edd22976f540efc5498e",
+          "game.css": "373304b7e3ff68029d3a3c5c072777e4efd79d6efe471f5958c1dc51502cfd8d",
+          "game.js": "aebef11e9d0b57f78e542f43a2fcdd8c9960295678ed2bb108c61127a98e1777"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "58ecc31163d66473f7142e6c03a8e959825bdcb7c688ad8c78efed72f3cbe72c"
+      }
+    },
+    {
+      "path": "arcade/screenshots/ci-20261102-02.jpg",
+      "sha256": "04049eb23db4ec748db7aefba1f4cf1dcd1461a2eee5f76bfaea111d7ea11a73",
+      "alt": "Neon Saber gameplay, view 2",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-02.png",
+        "sourceSha256": "5836a7c3e1cf62b169f3bab268e21c8f76e9774d1893b12a8854bc3f9df99db9",
+        "captureCommit": "64fef811fea1cd5b1157d626e2fe65a72947a760",
+        "workflowRunId": "41397264524",
+        "inputHashes": {
+          "index.html": "1c8d019cab4b9cbe2f1a13cd331e0f3f64fd70a8c0f3edd22976f540efc5498e",
+          "game.css": "373304b7e3ff68029d3a3c5c072777e4efd79d6efe471f5958c1dc51502cfd8d",
+          "game.js": "aebef11e9d0b57f78e542f43a2fcdd8c9960295678ed2bb108c61127a98e1777"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "58ecc31163d66473f7142e6c03a8e959825bdcb7c688ad8c78efed72f3cbe72c"
+      }
+    }
+  ]
 }
